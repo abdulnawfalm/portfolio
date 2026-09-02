@@ -1,26 +1,86 @@
 @import "tailwindcss";
 
 :root {
+  /* Light surfaces */
   --background: #ffffff;
-  --foreground: #171717;
+  --surface: #f7f7f8;
+  --border: #e6e6ea;
+  --foreground: #0a0a0b;
+  --muted: #6b6b76;
+
+  /* Dark surfaces */
+  --ink: #0b0b10;
+  --ink-surface: #15151d;
+  --ink-border: #2a2a35;
+
+  /* Accents */
+  --rose: #ff025e;
+  --rose-deep: #c9004c;
+  --azure: #009ffc;
+  --azure-deep: #0071c4;
+
+  /* Buttons */
+  --btn: #0a0a0b;
+  --btn-foreground: #ffffff;
+  --btn-hover: #26262e;
+  --btn-outline-hover: #f2f2f4;
 }
 
 @theme inline {
   --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-border: var(--border);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-muted: var(--muted);
+
+  --color-ink: var(--ink);
+  --color-ink-surface: var(--ink-surface);
+  --color-ink-border: var(--ink-border);
+
+  --color-rose: var(--rose);
+  --color-rose-deep: var(--rose-deep);
+  --color-azure: var(--azure);
+  --color-azure-deep: var(--azure-deep);
+
+  --color-btn: var(--btn);
+  --color-btn-foreground: var(--btn-foreground);
+  --color-btn-hover: var(--btn-hover);
+  --color-btn-outline-hover: var(--btn-outline-hover);
+
+  --font-sans: var(--font-jakarta);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+@theme inline {
+  /* ...colour tokens unchanged... */
+  --font-sans: var(--font-inter);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Lenis owns scrolling - don't let the browser compete */
+html {
+  scroll-behavior: auto;
+}
+
+/* Anchored sections clear the fixed header */
+section[id] {
+  scroll-margin-top: 5rem;
+}
+
+/* Custom cursor replaces the native one on pointer devices */
+@media (pointer: fine) {
+  * {
+    cursor: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }
