@@ -1,31 +1,30 @@
 "use client";
 
-import { useRef } from "react";
 import { motion, type Variants } from "motion/react";
 import { ArrowDown } from "lucide-react";
 
-const ROLES = [
-  { n: "01", label: "UI/UX Designer" },
-  { n: "02", label: "Product Designer" },
-];
+const ROLES = ["UI/UX Designer", "Product Designer"];
 
 const INTRO =
-  "Clean, minimal interfaces for product-focused design — from Figma to front end.";
+  "Clean, minimal interfaces for product-focused design from Figma to front end.";
+
+/* Smooth blend - lavender at the top edge, resolving into near-black */
+const BACKDROP =
+  "linear-gradient(180deg, #DCD5F7 0%, #C4B8EE 22%, #8574CE 44%, #4E3F9B 62%, #2A2160 80%, #08061A 100%)";
 
 const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
-const MICRO = "text-[10px] uppercase tracking-[0.2em] text-muted";
+const MICRO = "text-[10px] uppercase tracking-[0.2em]";
 
-/* Row parent - staggers its own children */
-const row: Variants = {
+/* Line parent - staggers its own characters */
+const line: Variants = {
   hidden: {},
   show: (i: number) => ({
-    transition: { delayChildren: 0.2 + i * 0.22, staggerChildren: 0.014 },
+    transition: { delayChildren: 0.35 + i * 0.18, staggerChildren: 0.016 },
   }),
 };
 
-/* Each character springs up and settles */
 const char: Variants = {
-  hidden: { y: "115%", opacity: 0, skewY: 6 },
+  hidden: { y: "115%", opacity: 0, skewY: 5 },
   show: {
     y: "0%",
     opacity: 1,
@@ -34,131 +33,120 @@ const char: Variants = {
   },
 };
 
-const bar: Variants = {
-  hidden: { scaleX: 0, transformOrigin: "left" },
-  show: {
-    scaleX: 1,
-    transformOrigin: "left",
-    transition: { duration: 1.1, ease: EASE },
-  },
-};
-
 const fade: Variants = {
-  hidden: { opacity: 0, y: 12 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.7, ease: EASE } },
+  hidden: { opacity: 0, y: 14 },
+  show: (d: number = 0) => ({
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.8, delay: d, ease: EASE },
+  }),
 };
 
-/* ---------------- row ---------------- */
+/* ---------------- headline line ---------------- */
 
-function Role({
-  role,
+function Line({
+  text,
   index,
-  last,
+  muted,
 }: {
-  role: (typeof ROLES)[number];
+  text: string;
   index: number;
-  last: boolean;
+  muted: boolean;
 }) {
   return (
-    <motion.div
-      variants={row}
+    <motion.span
+      variants={line}
       custom={index}
       initial="hidden"
       animate="show"
-      className="group flex items-baseline gap-4 md:gap-6"
-      style={{ paddingLeft: `${index * 8}%` }}
+      className={`block transition-colors duration-500 ${
+        muted ? "text-white/35 hover:text-white" : "text-white"
+      }`}
     >
-      {/* Index */}
-      <motion.span variants={fade} className={`${MICRO} shrink-0 tabular-nums`}>
-        {role.n}
-      </motion.span>
-
-      {/* Label - per-character spring, each letter lifts on hover */}
-      <h1
-        className={`shrink-0 text-[10vw] font-semibold leading-[1.12] tracking-[-0.04em] transition-colors duration-500 md:text-[6vw] ${
-          last
-            ? "text-foreground"
-            : "text-foreground/35 group-hover:text-foreground"
-        }`}
-      >
-        {role.label.split("").map((ch, i) => (
-          <span
-            key={`${ch}-${i}`}
-            className="inline-block overflow-hidden pb-[0.06em] align-bottom"
+      {text.split("").map((ch, i) => (
+        <span
+          key={`${ch}-${i}`}
+          className="inline-block overflow-hidden pb-[0.06em] align-bottom"
+        >
+          <motion.span
+            variants={char}
+            whileHover={{
+              y: -12,
+              transition: { type: "spring", stiffness: 450, damping: 12 },
+            }}
+            className="inline-block will-change-transform"
           >
-            <motion.span
-              variants={char}
-              whileHover={{
-                y: -12,
-                transition: { type: "spring", stiffness: 450, damping: 12 },
-              }}
-              className="inline-block will-change-transform"
-            >
-              {ch === " " ? "\u00A0" : ch}
-            </motion.span>
-          </span>
-        ))}
-      </h1>
-
-      {/* Trailing rule */}
-      <motion.span
-        variants={bar}
-        className={`hidden h-px flex-1 md:block ${
-          last ? "bg-foreground" : "bg-border"
-        }`}
-      />
-    </motion.div>
+            {ch === " " ? "\u00A0" : ch}
+          </motion.span>
+        </span>
+      ))}
+    </motion.span>
   );
 }
 
-export default function Hero() {
-  const root = useRef<HTMLElement>(null);
+/* ---------------- section ---------------- */
 
+export default function Hero() {
   return (
     <section
       id="top"
-      ref={root}
-      className="relative flex min-h-[100svh] flex-col justify-between overflow-hidden bg-background px-5 pb-8 pt-28 text-foreground md:px-8 md:pb-10 md:pt-32"
+      className="relative flex min-h-[100svh] flex-col overflow-hidden px-5 pb-10 pt-28 text-white md:px-8 md:pb-12 md:pt-32"
+      style={{ background: BACKDROP }}
     >
-      {/* Roles */}
-      <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col justify-center gap-6 md:gap-9">
-        {ROLES.map((role, i) => (
-          <Role
-            key={role.n}
-            role={role}
-            index={i}
-            last={i === ROLES.length - 1}
-          />
-        ))}
-      </div>
+      {/* Soft bloom stops the blend banding */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -top-[15%] left-1/2 size-[80vw] -translate-x-1/2 rounded-full opacity-35 blur-[150px]"
+        style={{
+          background: "radial-gradient(circle, #C4B8EE 0%, transparent 70%)",
+        }}
+      />
 
-      {/* Baseline */}
-      <motion.div
-        variants={row}
-        custom={2}
-        initial="hidden"
-        animate="show"
-        className="mx-auto w-full max-w-7xl"
-      >
-        <motion.div variants={bar} className="h-px w-full bg-border" />
+      <div className="relative z-10 mx-auto flex w-full max-w-7xl flex-1 flex-col">
+        {/* ── Intro, top right ── */}
+                <motion.p
+          variants={fade}
+          custom={0.15}
+          initial="hidden"
+          animate="show"
+          className="mt-32 max-w-xs text-sm leading-relaxed text-white/75 mix-blend-difference sm:ml-auto sm:text-right md:mt-44 md:max-w-sm md:text-base"
+        >
+          {INTRO}
+        </motion.p>
 
-        <div className="mt-6 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between sm:gap-10">
-          <motion.p
+        {/* ── Headline, anchored to the bottom ── */}
+        <div className="mt-auto">
+
+          <h1 className="text-[11.5vw] font-semibold leading-[0.98] tracking-[-0.045em] md:text-[7vw]">
+            {ROLES.map((text, i) => (
+              <Line
+                key={text}
+                text={text}
+                index={i}
+                muted={i !== ROLES.length - 1}
+              />
+            ))}
+          </h1>
+
+          {/* Baseline */}
+          <motion.div
             variants={fade}
-            className="max-w-md text-sm leading-relaxed text-muted md:text-base"
+            custom={0.9}
+            initial="hidden"
+            animate="show"
+            className="mt-10 flex items-center justify-between gap-6 md:mt-14"
           >
-            {INTRO}
-          </motion.p>
+            <span className={`${MICRO} text-white/45`}>
+              Portfolio — {new Date().getFullYear()}
+            </span>
 
-          <motion.span
-            variants={fade}
-            className={`flex shrink-0 items-center gap-2 ${MICRO}`}
-          >
-            <ArrowDown className="size-3.5 animate-bounce" />
-            Scroll
-          </motion.span>
+            <span className={`flex items-center gap-2 ${MICRO} text-white/45`}>
+              <ArrowDown className="size-3.5 animate-bounce" />
+              Scroll
+            </span>
+          </motion.div>
         </div>
-      </motion.div>
+      </div>
     </section>
   );
 }
