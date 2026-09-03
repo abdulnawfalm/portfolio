@@ -89,8 +89,6 @@ export default function Header() {
 
   return (
     <>
-      {/* mix-blend-difference inverts against whatever is underneath -
-          white over the hero image, black over the white sections below */}
       <header className="pointer-events-none fixed inset-x-0 top-0 z-50 text-white mix-blend-difference">
         <div className="mx-auto flex max-w-[96rem] items-start justify-between px-5 py-5 md:px-8 md:py-6">
           {/* Wordmark */}

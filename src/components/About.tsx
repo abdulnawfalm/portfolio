@@ -1,8 +1,9 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import {
   motion,
+  AnimatePresence,
   useInView,
   useSpring,
   useTransform,
@@ -10,6 +11,7 @@ import {
 } from "motion/react";
 import {
   Download,
+  ChevronDown,
   ArrowUpRight,
   Search,
   PenLine,
@@ -21,6 +23,12 @@ const HEADLINE = "UI/UX Designer & Product Designer";
 
 const BIO =
   "I'm a UI/UX and Product Designer with two years of experience designing and developing digital products. I design in Figma (including Figma AI) and bring those designs to life using modern front-end technologies working across both web and mobile platforms. I use AI tools throughout my workflow to move faster without compromising quality, allowing me to deliver projects efficiently based on scope and timeline.";
+
+/* PDFs live in public/ - see the note under this file */
+const RESUMES = [
+  { label: "Dubai, UAE", note: "UAE format", file: "/resume-uae.pdf" },
+  { label: "India", note: "India format", file: "/resume-india.pdf" },
+];
 
 const FLOW = [
   {
@@ -93,55 +101,138 @@ function Counter({ value }: { value: number }) {
   return <motion.span ref={ref}>{display}</motion.span>;
 }
 
-/* ---------------- resume button ---------------- */
+/* ---------------- resume menu ---------------- */
 
 function ResumeButton() {
+  const [open, setOpen] = useState(false);
   const [hovered, setHovered] = useState(false);
+  const wrapRef = useRef<HTMLDivElement>(null);
+
+  /* Click outside and Escape both close */
+  useEffect(() => {
+    if (!open) return;
+
+    const onDown = (e: MouseEvent) => {
+      if (!wrapRef.current?.contains(e.target as Node)) setOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+
+    document.addEventListener("mousedown", onDown);
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDown);
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [open]);
 
   return (
-    <motion.a
-      href="/resume.pdf"
-      download
-      data-cursor="magnetic"
-      onHoverStart={() => setHovered(true)}
-      onHoverEnd={() => setHovered(false)}
-      whileTap={{ scale: 0.96 }}
-      className="group relative isolate inline-flex items-center justify-center gap-2.5 overflow-hidden rounded-full bg-foreground px-6 py-3.5 text-sm font-medium text-background"
-    >
-      <motion.span
-        aria-hidden
-        initial={false}
-        animate={{ y: hovered ? "0%" : "101%" }}
-        transition={{ duration: 0.5, ease: EASE }}
-        className="absolute inset-0 -z-10 bg-gradient-to-r from-rose to-azure"
-      />
-
-      <span className="relative block size-4 overflow-hidden">
-        <motion.span
-          animate={{ y: hovered ? "140%" : "0%" }}
-          transition={{ duration: 0.4, ease: EASE }}
-          className="absolute inset-0 block"
-        >
-          <Download className="size-4" />
-        </motion.span>
+    <div ref={wrapRef} className="relative">
+      <motion.button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        data-cursor="magnetic"
+        onHoverStart={() => setHovered(true)}
+        onHoverEnd={() => setHovered(false)}
+        whileTap={{ scale: 0.96 }}
+        aria-expanded={open}
+        className="group relative isolate inline-flex w-full items-center justify-center overflow-hidden rounded-full bg-foreground px-6 py-3.5 text-sm font-medium sm:w-auto"
+      >
+        {/* Gradient sweeps up from below */}
         <motion.span
           aria-hidden
-          animate={{ y: hovered ? "0%" : "-140%" }}
-          transition={{ duration: 0.4, ease: EASE }}
-          className="absolute inset-0 block"
-        >
-          <Download className="size-4" />
-        </motion.span>
-      </span>
+          initial={false}
+          animate={{ y: hovered ? "0%" : "101%" }}
+          transition={{ duration: 0.5, ease: EASE }}
+          className="absolute inset-0 -z-10 bg-gradient-to-r from-rose to-azure"
+        />
 
-      <span className="relative text-white">Download resume</span>
-    </motion.a>
+        {/* Icon and label share one colour so they flip together */}
+        <motion.span
+          animate={{ color: hovered ? "#ffffff" : "var(--btn-foreground)" }}
+          transition={{ duration: 0.3 }}
+          className="relative flex items-center gap-2.5"
+        >
+          <span className="relative block size-4 overflow-hidden">
+            <motion.span
+              animate={{ y: hovered ? "140%" : "0%" }}
+              transition={{ duration: 0.4, ease: EASE }}
+              className="absolute inset-0 block"
+            >
+              <Download className="size-4" />
+            </motion.span>
+            <motion.span
+              aria-hidden
+              animate={{ y: hovered ? "0%" : "-140%" }}
+              transition={{ duration: 0.4, ease: EASE }}
+              className="absolute inset-0 block"
+            >
+              <Download className="size-4" />
+            </motion.span>
+          </span>
+
+          Download resume
+
+          <motion.span
+            animate={{ rotate: open ? 180 : 0 }}
+            transition={{ duration: 0.35, ease: EASE }}
+            className="ml-0.5"
+          >
+            <ChevronDown className="size-4" />
+          </motion.span>
+        </motion.span>
+      </motion.button>
+
+      {/* Options */}
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, y: -8, scale: 0.97 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -8, scale: 0.97 }}
+            transition={{ duration: 0.28, ease: EASE }}
+            className="absolute left-0 top-full z-20 mt-2 w-full min-w-[240px] origin-top overflow-hidden rounded-2xl border border-border bg-surface p-1.5 shadow-[0_16px_40px_-16px_rgba(0,0,0,0.5)] sm:w-auto"
+          >
+            {RESUMES.map((r, i) => (
+              <motion.a
+                key={r.file}
+                href={r.file}
+                download
+                onClick={() => setOpen(false)}
+                initial={{ opacity: 0, x: -8 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{
+                  delay: 0.06 + i * 0.06,
+                  duration: 0.35,
+                  ease: EASE,
+                }}
+                className="group/item flex items-center gap-3 rounded-xl px-3 py-3 transition-colors duration-300 hover:bg-foreground/[0.06]"
+              >
+                <span className="grid size-8 shrink-0 place-items-center rounded-lg border border-border transition-colors duration-300 group-hover/item:border-transparent group-hover/item:bg-foreground group-hover/item:text-background">
+                  <Download className="size-3.5" />
+                </span>
+
+                <span className="min-w-0">
+                  <span className="block text-sm font-medium tracking-tight">
+                    {r.label}
+                  </span>
+                  <span className="mt-0.5 block text-[10px] uppercase tracking-[0.15em] text-muted">
+                    {r.note}
+                  </span>
+                </span>
+              </motion.a>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 }
 
 /* ---------------- flow step ---------------- */
 
-function Step({ step, index }: { step: (typeof FLOW)[number]; index: number }) {
+function Step({ step }: { step: (typeof FLOW)[number] }) {
   const Icon = step.icon;
 
   return (
@@ -156,7 +247,7 @@ function Step({ step, index }: { step: (typeof FLOW)[number]; index: number }) {
         variants={{ hover: { scaleY: 1 } }}
         initial={{ scaleY: 0 }}
         transition={{ duration: 0.5, ease: EASE }}
-        className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-full origin-bottom bg-foreground/[0.03]"
+        className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-full origin-bottom bg-foreground/[0.04]"
       />
 
       {/* Index + icon */}
@@ -188,7 +279,7 @@ function Step({ step, index }: { step: (typeof FLOW)[number]; index: number }) {
 
       {/* Output */}
       <span className="md:col-span-1 md:text-right">
-        <span className="inline-block whitespace-nowrap rounded-full border border-border px-3 py-1.5 text-[10px] uppercase tracking-[0.1em] text-muted transition-colors duration-500 group-hover:border-foreground/20">
+        <span className="inline-block whitespace-nowrap rounded-full border border-border px-3 py-1.5 text-[10px] uppercase tracking-[0.1em] text-muted transition-colors duration-500 group-hover:border-foreground/25">
           {step.output.split(",")[0]}
         </span>
       </span>
@@ -284,8 +375,8 @@ export default function About() {
           </motion.div>
 
           <div className="mt-8 border-t border-border md:mt-10">
-            {FLOW.map((step, i) => (
-              <Step key={step.n} step={step} index={i} />
+            {FLOW.map((step) => (
+              <Step key={step.n} step={step} />
             ))}
           </div>
         </motion.div>

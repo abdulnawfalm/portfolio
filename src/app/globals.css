@@ -1,34 +1,41 @@
 @import "tailwindcss";
 
 :root {
-  /* Light surfaces */
-  --background: #ffffff;
-  --surface: #f7f7f8;
-  --border: #e6e6ea;
-  --foreground: #0a0a0b;
-  --muted: #6b6b76;
+  /* Surfaces - keyed to the dark end of the hero gradient */
+  --background: #0a0818;
+  --surface: #12102a;
+  --surface-2: #191637;
+  --border: #262149;
+  --foreground: #f4f2fb;
+  --muted: #9b97b8;
 
-  /* Dark surfaces */
-  --ink: #0b0b10;
-  --ink-surface: #15151d;
-  --ink-border: #2a2a35;
+  /* Inverted surfaces - for the rare light block */
+  --ink: #f4f2fb;
+  --ink-surface: #e8e5f5;
+  --ink-border: #cec8e8;
 
-  /* Accents */
-  --rose: #ff025e;
-  --rose-deep: #c9004c;
-  --azure: #009ffc;
-  --azure-deep: #0071c4;
+  /* Accents - sampled from the hero blend */
+  --lavender: #c4b8ee;
+  --violet: #8574ce;
+  --violet-deep: #4e3f9b;
 
-  /* Buttons */
-  --btn: #0a0a0b;
-  --btn-foreground: #ffffff;
-  --btn-hover: #26262e;
-  --btn-outline-hover: #f2f2f4;
+  /* Brand accents */
+  --rose: #ff3d7f;
+  --rose-deep: #ff025e;
+  --azure: #38b6ff;
+  --azure-deep: #009ffc;
+
+  /* Buttons - light pill on a dark page */
+  --btn: #f4f2fb;
+  --btn-foreground: #0a0818;
+  --btn-hover: #ffffff;
+  --btn-outline-hover: #191637;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
   --color-border: var(--border);
   --color-foreground: var(--foreground);
   --color-muted: var(--muted);
@@ -36,6 +43,10 @@
   --color-ink: var(--ink);
   --color-ink-surface: var(--ink-surface);
   --color-ink-border: var(--ink-border);
+
+  --color-lavender: var(--lavender);
+  --color-violet: var(--violet);
+  --color-violet-deep: var(--violet-deep);
 
   --color-rose: var(--rose);
   --color-rose-deep: var(--rose-deep);
@@ -47,11 +58,6 @@
   --color-btn-hover: var(--btn-hover);
   --color-btn-outline-hover: var(--btn-outline-hover);
 
-  --font-sans: var(--font-jakarta);
-}
-
-@theme inline {
-  /* ...colour tokens unchanged... */
   --font-sans: var(--font-inter);
 }
 
@@ -59,16 +65,44 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  /* Softens type rendering on dark backgrounds */
+  -webkit-font-smoothing: antialiased;
 }
 
 /* Lenis owns scrolling - don't let the browser compete */
 html {
   scroll-behavior: auto;
+  background: var(--background);
 }
 
 /* Anchored sections clear the fixed header */
 section[id] {
   scroll-margin-top: 5rem;
+}
+
+/* Form fields inherit the page colour rather than the OS default */
+input,
+textarea {
+  color: var(--foreground);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--muted);
+  opacity: 0.55;
+}
+
+/* Chrome's autofill paints its own light background - override it */
+input:-webkit-autofill,
+input:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--foreground);
+  -webkit-box-shadow: 0 0 0 1000px var(--surface) inset;
+  caret-color: var(--foreground);
+}
+
+::selection {
+  background: var(--violet);
+  color: #ffffff;
 }
 
 /* Custom cursor replaces the native one on pointer devices */
