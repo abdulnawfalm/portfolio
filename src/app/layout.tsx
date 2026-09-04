@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import SmoothScroll from "@/components/SmoothScroll";
 import AppShell from "@/components/AppShell";
+import Chatbot from "@/components/Chatbot";
 import "./globals.css";
 
 const inter = Inter({
@@ -27,6 +28,9 @@ export default function RootLayout({
         <SmoothScroll>
           <AppShell>{children}</AppShell>
         </SmoothScroll>
+
+        {/* AI Portfolio Chatbot */}
+        <Chatbot />
       </body>
     </html>
   );
