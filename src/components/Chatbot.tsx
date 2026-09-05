@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { profile } from "@/lib/profile";
+import { profile, type Resume } from "@/lib/profile";
 import type { ChatMessage } from "@/types/chat";
 
 // Matches the site cursor. Kept as an inline style, not a Tailwind arbitrary
@@ -18,8 +18,16 @@ const STARTER_QUESTIONS = [
 ];
 
 
+/** Strips the light markdown the model emits: `code`, **bold**, * bullets. */
+function tidy(line: string) {
+  return line
+    .replace(/`/g, "")
+    .replace(/\*\*(.+?)\*\*/g, "$1")
+    .trim();
+}
+
 /** Turns bare URLs, /file.pdf paths and emails inside a reply into real links. */
-function RichText({ text }: { text: string }) {
+function Inline({ text }: { text: string }) {
   const pattern = /(https?:\/\/[^\s<>()]+|\/[\w./-]+\.pdf|[\w.+-]+@[\w-]+\.[\w.]+)/g;
   const parts = text.split(pattern);
 
@@ -32,7 +40,7 @@ function RichText({ text }: { text: string }) {
         const isPdf = part.endsWith(".pdf");
         const isEmail = part.includes("@") && !part.startsWith("http");
         const href = isEmail ? `mailto:${part}` : part;
-        const match = profile.resumes.find((r) => r.file === part);
+        const match = profile.resumes.find((r: Resume) => r.file === part);
 
         if (isPdf) {
           return (
@@ -40,7 +48,7 @@ function RichText({ text }: { text: string }) {
               key={i}
               href={href}
               download
-              className="inline-flex items-center gap-1.5 rounded-full bg-white px-2.5 py-1 align-middle text-[12px] font-medium text-neutral-900 ring-1 ring-neutral-200 transition-colors hover:ring-neutral-900"
+              className="mx-0.5 inline-flex items-center gap-1.5 rounded-full bg-white px-2.5 py-1 align-middle text-[12px] font-medium text-neutral-900 ring-1 ring-neutral-200 transition-colors hover:ring-neutral-900"
             >
               <DownloadIcon />
               {match ? match.label : "Download PDF"}
@@ -61,6 +69,38 @@ function RichText({ text }: { text: string }) {
         );
       })}
     </>
+  );
+}
+
+/** Renders a reply: markdown bullets become real list rows, blanks collapse. */
+function RichText({ text }: { text: string }) {
+  const lines = text.split("\n").map((l) => l.trimEnd());
+
+  return (
+    <div className="space-y-1.5">
+      {lines.map((raw, i) => {
+        const bullet = /^\s*[*-]\s+/.test(raw);
+        const line = tidy(raw.replace(/^\s*[*-]\s+/, ""));
+        if (!line) return null;
+
+        if (bullet) {
+          return (
+            <div key={i} className="flex gap-2">
+              <span className="mt-[9px] size-1 shrink-0 rounded-full bg-neutral-400" />
+              <span className="min-w-0 flex-1">
+                <Inline text={line} />
+              </span>
+            </div>
+          );
+        }
+
+        return (
+          <p key={i}>
+            <Inline text={line} />
+          </p>
+        );
+      })}
+    </div>
   );
 }
 
@@ -187,7 +227,7 @@ export default function Chatbot() {
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="group relative flex items-center gap-3 overflow-hidden rounded-full bg-[#121212] py-2 pl-2 pr-5 text-white outline-none ring-1 ring-white/10 transition-[box-shadow,transform] duration-300 hover:-translate-y-0.5 shadow-[0_10px_30px_-10px_rgba(138,79,216,0.7)] hover:shadow-[0_14px_34px_-12px_rgba(0,0,0,0.6)] focus-visible:ring-2 focus-visible:ring-[#8A4FD8] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0B0B14] motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+          className="group relative flex items-center gap-2 overflow-hidden rounded-full bg-[#121212] py-1.5 pl-1.5 pr-4 text-white outline-none ring-1 ring-white/10 transition-[box-shadow,transform] duration-300 hover:-translate-y-0.5 shadow-[0_8px_24px_-10px_rgba(138,79,216,0.7)] hover:shadow-[0_12px_28px_-12px_rgba(0,0,0,0.6)] focus-visible:ring-2 focus-visible:ring-[#8A4FD8] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0B0B14] motion-reduce:transition-none motion-reduce:hover:translate-y-0"
           aria-label={`Chat about ${profile.name}`}
         >
           {/* gradient wash, revealed on hover */}
@@ -198,11 +238,11 @@ export default function Chatbot() {
           />
 
           <span className="relative z-10 rounded-full ring-2 ring-white/15 transition-shadow duration-300 group-hover:ring-white/40">
-            <Avatar size={34} />
+            <Avatar size={28} />
           </span>
 
           {/* both labels share one grid cell so the pill width never jumps */}
-          <span className="relative z-10 grid text-[13px] font-medium">
+          <span className="relative z-10 grid text-[12px] font-medium">
             <span className="col-start-1 row-start-1 opacity-100 transition-all duration-300 group-hover:-translate-y-1 group-hover:opacity-0 motion-reduce:transition-none">
               {profile.launcherLabel}
             </span>
@@ -222,6 +262,24 @@ export default function Chatbot() {
         >
           {/* Header: photo sits at the top right */}
           <div className="relative bg-[#121212] px-5 pb-6 pt-4 text-white">
+            {messages.length > 0 && (
+              <button
+                onClick={() => {
+                  setMessages([]);
+                  setError(null);
+                  setErrorDetail(null);
+                  inputRef.current?.focus();
+                }}
+                aria-label="Start a new chat"
+                className="absolute left-11 top-3 flex items-center gap-1.5 rounded-full px-2 py-1.5 text-[11px] text-neutral-400 outline-none transition-colors hover:bg-white/10 hover:text-white focus-visible:ring-2 focus-visible:ring-white/60"
+              >
+                <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7 7-7M3 12h13a5 5 0 015 5v2" />
+                </svg>
+                New chat
+              </button>
+            )}
+
             <button
               onClick={() => setIsOpen(false)}
               aria-label="Close chat"
@@ -353,7 +411,7 @@ export default function Chatbot() {
           {/* Resume downloads - always one tap away */}
           <div className="flex items-center gap-2 border-t border-neutral-100 px-3 pt-2.5">
             <span className="shrink-0 text-[11px] text-neutral-400">Resume</span>
-            {profile.resumes.map((r) => (
+            {profile.resumes.map((r: Resume) => (
               <a
                 key={r.file}
                 href={r.file}

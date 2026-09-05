@@ -20,8 +20,6 @@ export default function SmoothScroll({
   }, []);
 
   useEffect(() => {
-    if (isTouch) return;
-
     function update(time: number) {
       lenisRef.current?.lenis?.raf(time * 1000);
     }
@@ -35,12 +33,23 @@ export default function SmoothScroll({
       gsap.ticker.remove(update);
       lenis?.off("scroll", ScrollTrigger.update);
     };
-  }, [isTouch]);
+  }, []);
 
-  if (isTouch) return <>{children}</>;
-
+  // NOTE: no early return for touch. Unmounting the whole tree one frame
+  // after load tears down every ScrollTrigger mid-flight, which is what
+  // left mobile blank. Instead we leave the provider mounted and just turn
+  // the smoothing off, so phones get native scrolling.
   return (
-    <ReactLenis root ref={lenisRef} options={{ autoRaf: false, lerp: 0.1 }}>
+    <ReactLenis
+      root
+      ref={lenisRef}
+      options={{
+        autoRaf: false,
+        lerp: 0.1,
+        smoothWheel: !isTouch,
+        syncTouch: false,
+      }}
+    >
       {children}
     </ReactLenis>
   );

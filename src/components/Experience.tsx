@@ -213,25 +213,47 @@ export default function Experience() {
 
   useGSAP(
     () => {
-      gsap.from(".exp-head > *", {
-        y: 36,
-        autoAlpha: 0,
-        duration: 0.85,
-        stagger: 0.09,
-        ease: "power3.out",
-        clearProps: "transform",
-        scrollTrigger: { trigger: ".exp-head", start: "top 88%" },
-      });
+      /* fromTo, not from: `from` sets autoAlpha:0 immediately and only
+         reveals on trigger - if the trigger never fires (mis-measured page,
+         short viewport) the rows stay invisible forever. */
+      gsap.fromTo(
+        ".exp-head > *",
+        { y: 36, autoAlpha: 0 },
+        {
+          y: 0,
+          autoAlpha: 1,
+          duration: 0.85,
+          stagger: 0.09,
+          ease: "power3.out",
+          clearProps: "transform,visibility",
+          scrollTrigger: {
+            trigger: ".exp-head",
+            start: "top 95%",
+            once: true,
+          },
+        }
+      );
 
-      gsap.from(".exp-row", {
-        y: 30,
-        autoAlpha: 0,
-        duration: 0.8,
-        stagger: 0.09,
-        ease: "power3.out",
-        clearProps: "transform",
-        scrollTrigger: { trigger: ".exp-list", start: "top 85%" },
-      });
+      gsap.fromTo(
+        ".exp-row",
+        { y: 30, autoAlpha: 0 },
+        {
+          y: 0,
+          autoAlpha: 1,
+          duration: 0.8,
+          stagger: 0.09,
+          ease: "power3.out",
+          clearProps: "transform,visibility",
+          scrollTrigger: {
+            trigger: ".exp-list",
+            start: "top 95%",
+            once: true,
+          },
+        }
+      );
+
+      const t = window.setTimeout(() => ScrollTrigger.refresh(), 400);
+      return () => window.clearTimeout(t);
     },
     { scope: root },
   );

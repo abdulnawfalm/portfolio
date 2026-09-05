@@ -21,7 +21,8 @@ export const profile = {
   shortName: "Abdul",
   role: "UI/UX & Product Designer",
   // Put the image in /public and update this path.
-  avatar: "/abdul-nawfal.jpg",
+  avatar: "/abdul-nawfal.png",
+  avatarPosition: "50% 25%",
   initials: "AN",
   location: "Thanjavur, India",
   experience: "2 years",
@@ -31,8 +32,8 @@ export const profile = {
     "I design web and mobile products end to end, then build the front end myself.",
 
   // Launcher pill copy - the second line shows on hover.
-  launcherLabel: "Ask about Abdul\u2019s work",
-  launcherHoverLabel: "Available for work \u2014 say hi",
+  launcherLabel: "AI Assistant",
+   launcherHoverLabel: "Ask about my work",
 
   designTools: ["Figma", "Framer", "Figma Make"],
   buildStack: ["React", "Next.js", "TypeScript", "Tailwind CSS"],
@@ -77,7 +78,12 @@ ${profile.process.map((p) => `- ${p}`).join("\n")}
 
 RESUMES
 ${profile.resumes.map((r) => `- ${r.region}: ${r.file}`).join("\n")}
-- When someone asks for a CV or resume, give them the matching path as plain text (for example ${profile.resumes[0].file}). The site turns it into a download link automatically. If the region is unclear, offer both.
+- When someone asks for a CV or resume, write the matching path as plain text on its own (for example ${profile.resumes[0].file}). The site turns it into a download button automatically.
+- Never wrap a path in backticks, quotes or markdown, and never write it as a markdown link.
+
+FORMATTING
+- Reply in plain sentences. No markdown: no asterisks, no bullet characters, no backticks, no bold, no headings.
+- If you need to list two or three things, put each on its own line as a short sentence.
 
 RULES
 - Friendly, concise, professional. 2-4 sentences unless more detail is clearly needed.
