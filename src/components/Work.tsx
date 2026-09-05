@@ -127,28 +127,60 @@ export default function Work() {
 
   useGSAP(
     () => {
-      gsap.from(".work-head > *", {
-        y: 36,
-        autoAlpha: 0,
-        duration: 0.85,
-        stagger: 0.09,
-        ease: "power3.out",
-        clearProps: "transform",
-        scrollTrigger: { trigger: ".work-head", start: "top 88%" },
-      });
+      /* fromTo, not from: `from` leaves elements hidden if the trigger never
+         fires. start at 95% so short screens still fire, and once:true so a
+         refresh can't re-hide what's already shown. */
+      gsap.fromTo(
+        ".work-head > *",
+        { y: 36, autoAlpha: 0 },
+        {
+          y: 0,
+          autoAlpha: 1,
+          duration: 0.85,
+          stagger: 0.09,
+          ease: "power3.out",
+          clearProps: "transform,visibility",
+          scrollTrigger: {
+            trigger: ".work-head",
+            start: "top 95%",
+            once: true,
+          },
+        }
+      );
 
-      gsap.from(".work-card", {
-        y: 44,
-        autoAlpha: 0,
-        duration: 0.9,
-        stagger: 0.09,
-        ease: "power3.out",
-        clearProps: "transform",
-        scrollTrigger: { trigger: ".work-grid", start: "top 85%" },
-      });
+      gsap.fromTo(
+        ".work-card",
+        { y: 44, autoAlpha: 0 },
+        {
+          y: 0,
+          autoAlpha: 1,
+          duration: 0.9,
+          stagger: 0.09,
+          ease: "power3.out",
+          clearProps: "transform,visibility",
+          scrollTrigger: {
+            trigger: ".work-grid",
+            start: "top 95%",
+            once: true,
+          },
+        }
+      );
+
+      /* Cover images finish loading after ScrollTrigger takes its
+         measurements, so positions are computed against a shorter page.
+         Re-measure once things settle. */
+      const t = window.setTimeout(() => ScrollTrigger.refresh(), 400);
+      return () => window.clearTimeout(t);
     },
-    { scope: root },
+    { scope: root }
   );
+
+  /* Newly revealed cards need their own trigger after "View all" */
+  useEffect(() => {
+    if (!showAll) return;
+    const t = window.setTimeout(() => ScrollTrigger.refresh(), 100);
+    return () => window.clearTimeout(t);
+  }, [showAll]);
 
   return (
     <section
