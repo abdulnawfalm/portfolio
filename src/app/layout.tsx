@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import SmoothScroll from "@/components/SmoothScroll";
 import AppShell from "@/components/AppShell";
 import Chatbot from "@/components/Chatbot";
 import "./globals.css";
@@ -25,9 +24,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={inter.variable}>
       <body className="bg-background text-foreground antialiased">
-        <SmoothScroll>
-          <AppShell>{children}</AppShell>
-        </SmoothScroll>
+        <AppShell>{children}</AppShell>
 
         {/* AI Portfolio Chatbot */}
         <Chatbot />
