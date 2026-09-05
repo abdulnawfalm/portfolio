@@ -199,7 +199,7 @@ export default function Chatbot() {
     setTimeout(() => sendMessage(text), 0);
   };
 
-  const Avatar = ({ size }: { size: number }) => (
+    const Avatar = ({ size }: { size: number }) => (
     <span
       className="relative block shrink-0 overflow-hidden rounded-full bg-neutral-800"
       style={{ width: size, height: size }}
@@ -213,8 +213,9 @@ export default function Chatbot() {
           src={profile.avatar}
           alt={profile.name}
           fill
-          sizes="88px"
+          sizes="128px"
           className="object-cover"
+          style={{ objectPosition: profile.avatarPosition }}
           onError={() => setAvatarFailed(true)}
         />
       )}

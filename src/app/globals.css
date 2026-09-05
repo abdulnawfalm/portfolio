@@ -81,10 +81,7 @@ section[id] {
 }
 
 /* Form fields inherit the page colour rather than the OS default */
-input,
-textarea {
-  color: var(--foreground);
-}
+input, textarea { color: var(--foreground); }
 
 input::placeholder,
 textarea::placeholder {
